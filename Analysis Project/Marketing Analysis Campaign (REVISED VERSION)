@@ -1,0 +1,352 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+# ============================================================
+# MARKETING CAMPAIGN PERFORMANCE ANALYSIS (REVISED VERSION)
+
+
+# Objective:
+ #Analyse marketing campaign performance using Python
+ #and identify which campaigns are most efficient.
+
+# Metrics:
+# - Click-Through Rate (CTR)
+# - Conversion Rate
+# - Cost Per Click (CPC)
+# - Cost Per Conversion
+# - Return on Ad Spend (ROAS)
+
+
+# 1. CREATE DATASET
+
+
+data = {
+    "Campaign": [
+        "Facebook",
+        "Facebook",
+        "Instagram",
+        "Instagram",
+        "Google",
+        "Google",
+        "Twitter",
+        "Twitter"
+    ],
+
+    "Spend": [ 500,550,400,450,700,750,800,850],
+
+    "Clicks": [1200,1300,1000,1100,1500,1600,2000,2100],
+
+    "Conversions": [60,65,45,50,90,100,150,155],
+
+    "Impressions": [50000,52000,45000,47000,80000,85000,100000,105000],
+
+    "Revenue": [1000,1100,800,900,1200,1400,1000,1150]
+}
+
+
+df = pd.DataFrame(data)
+
+
+
+# 2. UNDERSTAND THE DATA
+
+print("\n--- FIRST FIVE ROWS ---")
+print(df.head())
+
+print("\n--- DATASET SHAPE ---")
+print(df.shape)
+
+print("\n--- DATA TYPES ---")
+print(df.dtypes)
+
+print("\n--- SUMMARY STATISTICS ---")
+print(df.describe())
+
+
+
+# 3. CHECK DATA QUALITY
+
+
+print("\n--- MISSING VALUES ---")
+print(df.isnull().sum())
+
+print("\n--- DUPLICATE ROWS ---")
+print(df.duplicated().sum())
+
+print("\n--- NEGATIVE SPEND ---")
+print((df["Spend"] < 0).sum())
+
+print("\n--- INVALID CLICKS ---")
+print((df["Clicks"] < 0).sum())
+
+print("\n--- CONVERSIONS GREATER THAN CLICKS ---")
+print((df["Conversions"] > df["Clicks"]).sum())
+
+
+
+# 4. CALCULATE MARKETING METRICS
+
+# Click-Through Rate (CTR)
+# Measures the percentage of impressions
+# that resulted in clicks.
+
+df["CTR"] = (df["Clicks"] / df["Impressions"])
+
+
+# Conversion Rate
+# Measures the percentage of clicks
+# that resulted in conversions.
+
+df["Conversion_Rate"] = (df["Conversions"] / df["Clicks"])
+
+
+# Cost Per Click (CPC)
+# Measures the average cost of each click.
+
+df["CPC"] = (
+    df["Spend"] / df["Clicks"]
+)
+
+
+# Cost Per Conversion
+# Measures the average cost of generating
+# one conversion.
+
+df["Cost_Per_Conversion"] = (
+    df["Spend"] / df["Conversions"]
+)
+
+
+# Return on Ad Spend (ROAS)
+# Measures how much revenue is generated
+# for every £1 spent on advertising.
+
+df["ROAS"] = (df["Revenue"] / df["Spend"])
+
+
+
+# 5. DISPLAY CAMPAIGN METRICS
+
+print("\n--- CAMPAIGN METRICS ---")
+
+print(
+    df[
+        [
+            "Campaign",
+            "Spend",
+            "Clicks",
+            "Conversions",
+            "Revenue",
+            "CTR",
+            "Conversion_Rate",
+            "CPC",
+            "Cost_Per_Conversion",
+            "ROAS"
+        ]
+    ]
+)
+
+
+
+# 6. CREATE CAMPAIGN SUMMARY
+
+campaign_summary = df.groupby("Campaign").agg({
+    "Spend": "sum",
+    "Clicks": "sum",
+    "Conversions": "sum",
+    "Impressions": "sum",
+    "Revenue": "sum"
+})
+
+
+# 7. CALCULATE SUMMARY METRICS
+
+
+campaign_summary["CTR"] = (campaign_summary["Clicks"] /campaign_summary["Impressions"])
+
+
+campaign_summary["Conversion_Rate"] = (campaign_summary["Conversions"] /campaign_summary["Clicks"])
+
+
+campaign_summary["CPC"] = (campaign_summary["Spend"] /campaign_summary["Clicks"])
+
+
+campaign_summary["Cost_Per_Conversion"] = (campaign_summary["Spend"] /campaign_summary["Conversions"])
+
+
+campaign_summary["ROAS"] = (campaign_summary["Revenue"] /campaign_summary["Spend"])
+
+
+
+# 8. SORT CAMPAIGNS BY ROAS
+
+
+campaign_summary = campaign_summary.sort_values(
+    "ROAS",
+    ascending=False
+)
+
+
+print("\n--- CAMPAIGN PERFORMANCE SUMMARY ---")
+print(campaign_summary)
+
+
+
+# 9. IDENTIFY BEST PERFORMING CAMPAIGNS
+
+
+best_roas = campaign_summary["ROAS"].idxmax()
+
+lowest_cpc = campaign_summary["CPC"].idxmin()
+
+lowest_cost_per_conversion = (campaign_summary["Cost_Per_Conversion"].idxmin())
+
+highest_ctr = campaign_summary["CTR"].idxmax()
+
+highest_conversion_rate = (campaign_summary["Conversion_Rate"].idxmax())
+
+
+print("\n--- KEY PERFORMANCE RESULTS ---")
+
+print("Highest ROAS:",best_roas)
+
+print("Lowest CPC:",lowest_cpc)
+
+print("Lowest Cost Per Conversion:",lowest_cost_per_conversion)
+
+print("Highest CTR:",highest_ctr)
+
+print("Highest Conversion Rate:",highest_conversion_rate)
+
+
+
+# 10. OVERALL CAMPAIGN PERFORMANCE
+
+
+total_spend = df["Spend"].sum()
+
+total_clicks = df["Clicks"].sum()
+
+total_conversions = df["Conversions"].sum()
+
+total_impressions = df["Impressions"].sum()
+
+total_revenue = df["Revenue"].sum()
+
+
+overall_ctr = (total_clicks / total_impressions)
+
+
+overall_conversion_rate = (total_conversions / total_clicks)
+
+
+overall_roas = (total_revenue / total_spend)
+
+
+print("\n--- OVERALL PERFORMANCE ---")
+
+print(f"Total Spend: £{total_spend:,.2f}")
+
+print(f"Total Revenue: £{total_revenue:,.2f}")
+
+print(f"Total Clicks: {total_clicks:,}")
+
+print(f"Total Conversions: {total_conversions:,}")
+
+print(f"Overall CTR: {overall_ctr:.2%}")
+
+print(f"Overall Conversion Rate: "f"{overall_conversion_rate:.2%}")
+
+print(f"Overall ROAS: {overall_roas:.2f}x")
+
+
+
+# 11. VISUALISATION - REVENUE BY CAMPAIGN
+
+
+campaign_summary["Revenue"].plot( kind="bar",title="Revenue by Marketing Campaign")
+
+plt.xlabel("Campaign")
+plt.ylabel("Revenue (£)")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
+
+
+# 12. VISUALISATION - ROAS BY CAMPAIGN
+
+
+campaign_summary["ROAS"].plot(kind="bar",title="Return on Ad Spend by Campaign")
+
+plt.xlabel("Campaign")
+plt.ylabel("ROAS")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
+
+
+# 13. VISUALISATION - COST PER CONVERSION
+
+
+campaign_summary["Cost_Per_Conversion"].plot( kind="bar",title="Cost Per Conversion by Campaign")
+
+plt.xlabel("Campaign")
+plt.ylabel("Cost Per Conversion (£)")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
+
+
+# 14. VISUALISATION - SPEND VS REVENUE
+
+
+plt.scatter(campaign_summary["Spend"],campaign_summary["Revenue"])
+
+plt.title("Marketing Spend vs Revenue")
+plt.xlabel("Marketing Spend (£)")
+plt.ylabel("Revenue (£)")
+plt.tight_layout()
+plt.show()
+
+
+
+# 15. FINAL ANALYSIS
+
+
+print("\n========================================")
+print("             FINAL ANALYSIS")
+print("========================================")
+
+print(
+    f"\nThe campaign with the highest ROAS "
+    f"was {best_roas}."
+)
+
+print(
+    f"The campaign with the lowest "
+    f"cost per conversion was "
+    f"{lowest_cost_per_conversion}."
+)
+
+print(
+    f"The campaign with the highest CTR "
+    f"was {highest_ctr}."
+)
+
+print(
+    f"The campaign with the highest "
+    f"conversion rate was "
+    f"{highest_conversion_rate}."
+)
+
+print(
+    "\nThe analysis demonstrates how marketing "
+    "performance can be compared using "
+    "efficiency, engagement and revenue metrics."
+)
+
+print("\nAnalysis complete.")
